@@ -98,6 +98,7 @@ enum DateOrder {
 class _CupertinoDatePicker extends StatefulWidget {
   _CupertinoDatePicker({
     required this.onDateChanged,
+    required this.onDatePicked,
     NepaliDateTime? initialDate,
     this.minimumYear = 1,
     this.maximumYear,
@@ -121,6 +122,7 @@ class _CupertinoDatePicker extends StatefulWidget {
   /// Callback called when the selected date changes. Must not be
   /// null.
   final ValueChanged<NepaliDateTime> onDateChanged;
+  final VoidCallback onDatePicked;
 
   final Language language;
 
@@ -447,21 +449,38 @@ class _CupertinoDatePickerDateState extends State<_CupertinoDatePicker> {
       ));
     }
 
-    return MediaQuery(
-      data: const MediaQueryData(textScaleFactor: 1.0),
-      child: NotificationListener<ScrollEndNotification>(
-        onNotification: _keepInValidRange,
-        child: DefaultTextStyle.merge(
-          style: _kDefaultPickerTextStyle,
-          child: CustomMultiChildLayout(
-            delegate: _DatePickerLayoutDelegate(
-              columnWidths: columnWidths,
-              textDirectionFactor: textDirectionFactor,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CupertinoButton(onPressed: () { Navigator.pop(context); }, child: Text("Cancel", style: TextStyle(color: Colors.grey),),),
+            CupertinoButton(onPressed: () {
+              // dayController.
+              widget.onDatePicked();
+              Navigator.pop(context);
+              }, child: Text("Done"),)
+          ],
+        ),
+        Expanded(
+          child: MediaQuery(
+            data: const MediaQueryData(textScaleFactor: 1.0),
+            child: NotificationListener<ScrollEndNotification>(
+              onNotification: _keepInValidRange,
+              child: DefaultTextStyle.merge(
+                style: _kDefaultPickerTextStyle,
+                child: CustomMultiChildLayout(
+                  delegate: _DatePickerLayoutDelegate(
+                    columnWidths: columnWidths,
+                    textDirectionFactor: textDirectionFactor,
+                  ),
+                  children: pickers,
+                ),
+              ),
             ),
-            children: pickers,
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -487,6 +506,7 @@ void showCupertinoDatePicker({
   required NepaliDateTime firstDate,
   required NepaliDateTime lastDate,
   required ValueChanged<NepaliDateTime> onDateChanged,
+  required VoidCallback onDatePicked,
   Language language = Language.english,
   DateOrder dateOrder = DateOrder.mdy,
 }) {
@@ -520,6 +540,7 @@ void showCupertinoDatePicker({
                 minimumYear: firstDate.year,
                 maximumYear: lastDate.year,
                 onDateChanged: onDateChanged,
+                onDatePicked: onDatePicked,
                 language: language,
                 dateOrder: dateOrder,
               ),
@@ -536,6 +557,8 @@ Future<NepaliDateTime?> _showCupertinoDatePicker({
   required NepaliDateTime initialDate,
   required NepaliDateTime firstDate,
   required NepaliDateTime lastDate,
+  required VoidCallback onDatePicked,
+
   Language language = Language.english,
   DateOrder dateOrder = DateOrder.mdy,
 }) async {
@@ -594,6 +617,7 @@ Future<NepaliDateTime?> _showCupertinoDatePicker({
                       minimumYear: firstDate.year,
                       maximumYear: lastDate.year,
                       onDateChanged: (date) => _selectedDate = date,
+                      onDatePicked: onDatePicked,
                       language: language,
                       dateOrder: dateOrder,
                     ),
@@ -652,7 +676,10 @@ Future<NepaliDateTime?> showAdaptiveDatePicker({
         firstDate: firstDate,
         lastDate: lastDate,
         language: language,
-        dateOrder: dateOrder,
+        dateOrder: dateOrder, onDatePicked: () {
+
+      },
+
       );
   }
 }

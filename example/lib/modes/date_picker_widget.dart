@@ -72,6 +72,9 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                     setState(() {});
                   } else {
                     showCupertinoDatePicker(
+                      onDatePicked: (){
+                        print('OH YES!!!');
+                      },
                       context: context,
                       initialDate: _selectedDateTime ?? NepaliDateTime.now(),
                       firstDate: NepaliDateTime(1970),
